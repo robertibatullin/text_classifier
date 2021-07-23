@@ -67,3 +67,9 @@ class Model:
         tag_ids = [np.argwhere(probabilities[idx] >= threshold).reshape(-1)
                    for idx in range(len(probabilities))]
         return tag_ids
+
+    def get_top_k_features(self, tag_id: int, k: int) -> List[int]:
+        coefs = self.__classifiers[tag_id].coef_
+        coefs = pd.Series(coefs[0])
+        coefs.sort_values(ascending=False, inplace=True)
+        return coefs.head(k).index.tolist()

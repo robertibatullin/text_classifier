@@ -1,5 +1,5 @@
 import os.path
-from typing import Tuple, List
+from typing import Tuple, List, Dict
 import pickle
 
 import numpy as np
@@ -17,6 +17,20 @@ class DataManager:
                  text_preprocessor: TextPreprocessor):
         self.__tag_preprocessor = tag_preprocessor
         self.__text_preprocessor = text_preprocessor
+
+    @property
+    def tags(self):
+        return self.__tag_preprocessor.mapper.tags
+
+    @property
+    def features_to_ids(self) -> Dict[str, int]:
+        return self.__text_preprocessor.vectorizer.vocabulary_
+
+    @property
+    def ids_to_features(self) -> List[str]:
+        sorted_items = sorted(self.features_to_ids.items(),
+                              key = lambda item:item[1])
+        return [item[0] for item in sorted_items]
 
     @classmethod
     def load(cls):
