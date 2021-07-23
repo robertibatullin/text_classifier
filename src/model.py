@@ -14,6 +14,7 @@ SUFFIX = '.pkl'
 classifier_paths = sorted(glob.glob(PREFIX + '*' + SUFFIX),
                           key=lambda s: int(s[len(PREFIX):-len(SUFFIX)]))
 
+
 class Model:
 
     def __init__(self, classifiers: List[Classifier]):
@@ -33,37 +34,37 @@ class Model:
             path = os.path.join('model', f'classifier{i}.pkl')
             pickle.dump(classifier, open(path, 'wb'))
 
-    def fit(self, X: csr_matrix, Y: pd.DataFrame) -> None:
+    def fit(self, x: csr_matrix, y: pd.DataFrame) -> None:
         fitted = []
-        for tag_id, classifier in zip(Y.columns, self.__classifiers):
+        for tag_id, classifier in zip(y.columns, self.__classifiers):
             try:
-                classifier = classifier.fit(X, Y[tag_id])
+                classifier = classifier.fit(x, y[tag_id])
             except TypeError:
-                X = X.toarray()
-                classifier = classifier.fit(X, Y[tag_id])
+                x = x.toarray()
+                classifier = classifier.fit(x, y[tag_id])
             fitted.append(classifier)
-            print(f'Accuracy with tag #{tag_id}: {classifier.score(X, Y[tag_id])}')
+            print(f'Accuracy with tag #{tag_id}: {classifier.score(x, y[tag_id])}')
         self.__classifiers = fitted
 
-    def predict_proba(self, X: csr_matrix) -> np.array:
+    def predict_proba(self, x: csr_matrix) -> np.array:
         """
-        :param X: vectorized array of texts
+        :param x: vectorized array of texts
         :return: list of tag probabilities
         """
         probabilities = []
         for classifier in self.__classifiers:
             try:
-                predict_proba = classifier.predict_proba(X)
+                predict_proba = classifier.predict_proba(x)
             except TypeError:
-                X = X.toarray()
-                predict_proba = classifier.predict_proba(X)
+                x = x.toarray()
+                predict_proba = classifier.predict_proba(x)
             probabilities.append(predict_proba[:, 1])
         probabilities = np.transpose(np.array(probabilities))
         return probabilities
 
-    def predict(self, X: csr_matrix,
+    def predict(self, x: csr_matrix,
                 threshold: float = 0.5) -> List[str]:
-        probabilities = self.predict_proba(X)
+        probabilities = self.predict_proba(x)
         tag_ids = [np.argwhere(probabilities[idx] >= threshold).reshape(-1)
                    for idx in range(len(probabilities))]
         return tag_ids
