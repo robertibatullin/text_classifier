@@ -1,14 +1,12 @@
-import os.path
 from typing import Tuple, List, Dict
-import pickle
 
 import numpy as np
 import pandas as pd
 from scipy.sparse import save_npz, load_npz, csr_matrix
 
-from .tag_mapper import TagMapper
 from .tag_preprocessor import TagPreprocessor
 from .text_preprocessor import TextPreprocessor
+
 
 class DataManager:
 
@@ -29,7 +27,7 @@ class DataManager:
     @property
     def ids_to_features(self) -> List[str]:
         sorted_items = sorted(self.features_to_ids.items(),
-                              key = lambda item:item[1])
+                              key=lambda item: item[1])
         return [item[0] for item in sorted_items]
 
     @classmethod
@@ -48,27 +46,31 @@ class DataManager:
         :param csv_path: path to DataFrame with ";"-separated columns "filename" and "tags",
         where each line of "filename" contains filenames of text files in "texts" directory
         and each line of "tags" contains comma-separated tags.
-        :return: (X, Y), where X is a sparse matrix of vectorized texts and Y is dataframe
+        :return: (x, Y), where x is a sparse matrix of vectorized texts and Y is dataframe
         of vectorized tags.
         """
         data = pd.read_csv(csv_path, sep=';')
-        X = self.__text_preprocessor.preprocess(data)
-        Y = self.__tag_preprocessor.preprocess(data)
-        return X, Y
+        x = self.__text_preprocessor.preprocess(data)
+        y = self.__tag_preprocessor.preprocess(data)
+        return x, y
 
-    def load_X(self, path: str) -> csr_matrix:
+    @staticmethod
+    def load_x(path: str) -> csr_matrix:
         return load_npz(path)
 
-    def save_X(self, X: csr_matrix,
+    @staticmethod
+    def save_x(x: csr_matrix,
                path: str) -> None:
-        save_npz(path, X)
+        save_npz(path, x)
 
-    def load_Y(self, path: str) -> pd.DataFrame:
+    @staticmethod
+    def load_y(path: str) -> pd.DataFrame:
         return pd.read_csv(path, dtype=int)
 
-    def save_Y(self, Y: pd.DataFrame,
+    @staticmethod
+    def save_y(y: pd.DataFrame,
                path: str) -> None:
-        Y.to_csv(path, index=False)
+        y.to_csv(path, index=False)
 
     def transform(self, texts: List[str]) -> csr_matrix:
         return self.__text_preprocessor.vectorizer.transform(texts)
