@@ -1,4 +1,5 @@
 from typing import List
+from collections import Counter
 
 
 class TagMapper:
@@ -13,7 +14,10 @@ class TagMapper:
         """
         tags = [tag.lower().strip() for tagline in taglines
                 for tag in tagline.split(',')]
-        self.__tags = sorted(set(tags))
+        counter = Counter(tags)
+        # filtering out tags that occur only once
+        filtered = filter(lambda tag: counter[tag] > 1, set(tags))
+        self.__tags = sorted(filtered)
 
     @property
     def tags(self) -> List[str]:

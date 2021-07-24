@@ -1,8 +1,8 @@
-<<<<<<< HEAD
 texts/
 tags/
 test.py
-=======
+*.ipynb
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -132,4 +132,4 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
->>>>>>> 9ce4682f07052f7fe04358dccf26f420a8258843
+
