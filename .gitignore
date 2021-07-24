@@ -1,5 +1,4 @@
-texts/
-tags/
+data/md/
 test.py
 *.ipynb
 

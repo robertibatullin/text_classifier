@@ -25,21 +25,21 @@ class TextPreprocessor:
     def save(self, path: str):
         pickle.dump(self.__text_vectorizer, open(path, 'wb'))
         
-    def fit(self, data: pd.DataFrame):
-        paths = [os.path.join('texts', filename)
+    def fit(self, data: pd.DataFrame, root: str):
+        paths = [os.path.join(root, 'texts', filename)
                  for filename in data['filename']]
         texts = [open(path, 'r').read()
                  for path in paths]
         self.__text_vectorizer.fit(texts)
 
-    def transform(self, data: pd.DataFrame) -> csr_matrix:
+    def transform(self, data: pd.DataFrame, root: str) -> csr_matrix:
         """
         Transforms text data to vectorized
         :param data: DataFrame with column "filename"
         where each line contains a filename of a text file in "texts" directory
         :return: sparse matrix of vectorized texts
         """
-        paths = [os.path.join('texts', filename)
+        paths = [os.path.join(root, 'texts', filename)
                  for filename in data['filename']]
         texts = [open(path, 'r').read()
                  for path in paths]

@@ -14,6 +14,7 @@ class DataManager:
     def __init__(self,
                  tag_preprocessor: TagPreprocessor,
                  text_preprocessor: TextPreprocessor):
+        self.__root = '.'
         self.__tag_preprocessor = tag_preprocessor
         self.__text_preprocessor = text_preprocessor
 
@@ -32,18 +33,21 @@ class DataManager:
         return [item[0] for item in sorted_items]
 
     @classmethod
-    def load(cls, root: str):
-        tag_preprocessor = TagPreprocessor.load(os.path.join(root, 'tags.txt'))
-        text_preprocessor = TextPreprocessor.load(os.path.join(root, 'vectorizer.pkl'))
+    def load(cls):
+        tag_preprocessor = TagPreprocessor.load(os.path.join(self.__root, 'tags.txt'))
+        text_preprocessor = TextPreprocessor.load(os.path.join(self.__root, 'vectorizer.pkl'))
         return cls(tag_preprocessor, text_preprocessor)
 
-    def save(self, root: str):
-        self.__tag_preprocessor.save(os.path.join(root, 'tags.txt'))
-        self.__text_preprocessor.save(os.path.join(root, 'vectorizer.pkl'))
+    def save(self):
+        self.__tag_preprocessor.save(os.path.join(self.__root, 'tags.txt'))
+        self.__text_preprocessor.save(os.path.join(self.__root, 'vectorizer.pkl'))
+        
+    def set_root(self, root: str):
+        self.__root = root
         
     def fit(self, data: pd.DataFrame):
+        self.__text_preprocessor.fit(data, self.__root)
         self.__tag_preprocessor.fit(data)
-        self.__text_preprocessor.fit(data)
 
     def transform(self, data: pd.DataFrame) -> Tuple[csr_matrix, pd.DataFrame]:
         """
@@ -54,7 +58,7 @@ class DataManager:
         :return: (x, Y), where x is a sparse matrix of vectorized texts and Y is dataframe
         of vectorized tags.
         """
-        x = self.__text_preprocessor.transform(data)
+        x = self.__text_preprocessor.transform(data, self.__root)
         y = self.__tag_preprocessor.transform(data)
         return x, y
 
