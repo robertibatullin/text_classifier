@@ -15,22 +15,23 @@ class TagPreprocessor:
         self.__tag_vectorizer = tag_vectorizer
 
     @classmethod
-    def load(cls):
-        tags_path = os.path.join('tags', 'tags.txt')
-        tags = [tag.strip() for tag in open(tags_path, 'r').readlines()]
+    def load(cls, path: str):
+        tags = [tag.strip() for tag in open(path, 'r').readlines()]
         tag_mapper = TagMapper(tags)
         tag_vectorizer = TagVectorizer()
         return cls(tag_mapper, tag_vectorizer)
-
-    def save(self):
-        tags_path = os.path.join('tags', 'tags.txt')
-        open(tags_path, 'w').write('\n'.join(self.__tag_mapper.tags))
+    
+    def save(self, path: str):
+        open(path, 'w').write('\n'.join(self.__tag_mapper.tags))
 
     @property
     def mapper(self):
         return self.__tag_mapper
 
-    def preprocess(self, data: pd.DataFrame) -> pd.DataFrame:
+    def fit(self, data: pd.DataFrame):
+        self.__tag_mapper = TagMapper.from_taglines(data['tags'].tolist())
+
+    def transform(self, data: pd.DataFrame) -> pd.DataFrame:
         """
         Transforms text data to vectorized
         :param data: DataFrame with column "tags"

@@ -7,7 +7,12 @@ class TagMapper:
     UNKNOWN_TAG_ID = -1
 
     def __init__(self,
-                 taglines: List[str]):
+                 tags: List[str]):
+        self.__tags = tags
+        
+    @classmethod
+    def from_taglines(cls, 
+                      taglines: List[str]):
         """
         :param taglines: list of strings, each string containing
         comma-separated tags
@@ -17,7 +22,8 @@ class TagMapper:
         counter = Counter(tags)
         # filtering out tags that occur only once
         filtered = filter(lambda tag: counter[tag] > 1, set(tags))
-        self.__tags = sorted(filtered)
+        tags = sorted(filtered)
+        return cls(tags)
 
     @property
     def tags(self) -> List[str]:

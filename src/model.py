@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 from scipy.sparse.csr import csr_matrix
 
-from .classifier import Classifier, classifier_fit_kwargs
+from .classifier import Classifier, classifier_fit_kwargs, classifier_init_kwargs
 
 PREFIX = 'model/classifier'
 SUFFIX = '.pkl'
@@ -36,12 +36,13 @@ class Model:
 
     def fit(self, x: csr_matrix, y: pd.DataFrame) -> None:
         fitted = []
-        for tag_id, classifier in zip(y.columns, self.__classifiers):
+        for tag_id in y.columns:
+            classifier = Classifier(**classifier_init_kwargs)
             try:
-                classifier = classifier.fit(x, y[tag_id], **classifier_fit_kwargs)
+                classifier.fit(x, y[tag_id], **classifier_fit_kwargs)
             except TypeError:
                 x = x.toarray()
-                classifier = classifier.fit(x, y[tag_id], **classifier_fit_kwargs)
+                classifier.fit(x, y[tag_id], **classifier_fit_kwargs)
             fitted.append(classifier)
             print(f'Accuracy with tag #{tag_id}: {classifier.score(x, y[tag_id])}')
         self.__classifiers = fitted

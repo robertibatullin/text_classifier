@@ -18,16 +18,21 @@ class TextPreprocessor:
         return self.__text_vectorizer
 
     @classmethod
-    def load(cls):
-        vectorizer_path = os.path.join('model', 'vectorizer.pkl')
-        vectorizer = pickle.load(open(vectorizer_path,'rb'))
+    def load(cls, path: str):
+        vectorizer = pickle.load(open(path,'rb'))
         return cls(vectorizer)
 
-    def save(self):
-        vectorizer_path = os.path.join('model', 'vectorizer.pkl')
-        pickle.dump(self.__text_vectorizer, open(vectorizer_path, 'wb'))
+    def save(self, path: str):
+        pickle.dump(self.__text_vectorizer, open(path, 'wb'))
+        
+    def fit(self, data: pd.DataFrame):
+        paths = [os.path.join('texts', filename)
+                 for filename in data['filename']]
+        texts = [open(path, 'r').read()
+                 for path in paths]
+        self.__text_vectorizer.fit(texts)
 
-    def preprocess(self, data: pd.DataFrame) -> csr_matrix:
+    def transform(self, data: pd.DataFrame) -> csr_matrix:
         """
         Transforms text data to vectorized
         :param data: DataFrame with column "filename"
@@ -38,4 +43,4 @@ class TextPreprocessor:
                  for filename in data['filename']]
         texts = [open(path, 'r').read()
                  for path in paths]
-        return self.__text_vectorizer.fit_transform(texts)
+        return self.__text_vectorizer.transform(texts)

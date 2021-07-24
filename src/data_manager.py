@@ -1,4 +1,5 @@
 from typing import Tuple, List, Dict
+import os
 
 import numpy as np
 import pandas as pd
@@ -31,16 +32,20 @@ class DataManager:
         return [item[0] for item in sorted_items]
 
     @classmethod
-    def load(cls):
-        tag_preprocessor = TagPreprocessor.load()
-        text_preprocessor = TextPreprocessor.load()
+    def load(cls, root: str):
+        tag_preprocessor = TagPreprocessor.load(os.path.join(root, 'tags.txt'))
+        text_preprocessor = TextPreprocessor.load(os.path.join(root, 'vectorizer.pkl'))
         return cls(tag_preprocessor, text_preprocessor)
 
-    def save(self):
-        self.__tag_preprocessor.save()
-        self.__text_preprocessor.save()
+    def save(self, root: str):
+        self.__tag_preprocessor.save(os.path.join(root, 'tags.txt'))
+        self.__text_preprocessor.save(os.path.join(root, 'vectorizer.pkl'))
+        
+    def fit(self, data: pd.DataFrame):
+        self.__tag_preprocessor.fit(data)
+        self.__text_preprocessor.fit(data)
 
-    def get_data(self, csv_path) -> Tuple[csr_matrix, pd.DataFrame]:
+    def transform(self, data: pd.DataFrame) -> Tuple[csr_matrix, pd.DataFrame]:
         """
         Transforms text data to vectorized
         :param csv_path: path to DataFrame with ";"-separated columns "filename" and "tags",
@@ -49,9 +54,8 @@ class DataManager:
         :return: (x, Y), where x is a sparse matrix of vectorized texts and Y is dataframe
         of vectorized tags.
         """
-        data = pd.read_csv(csv_path, sep=';')
-        x = self.__text_preprocessor.preprocess(data)
-        y = self.__tag_preprocessor.preprocess(data)
+        x = self.__text_preprocessor.transform(data)
+        y = self.__tag_preprocessor.transform(data)
         return x, y
 
     @staticmethod
@@ -71,9 +75,6 @@ class DataManager:
     def save_y(y: pd.DataFrame,
                path: str) -> None:
         y.to_csv(path, index=False)
-
-    def transform(self, texts: List[str]) -> csr_matrix:
-        return self.__text_preprocessor.vectorizer.transform(texts)
 
     def get_tags(self,
                  tag_ids: np.array) -> List[List[str]]:
