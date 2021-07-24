@@ -52,7 +52,7 @@ class DataManager:
     def transform(self, data: pd.DataFrame) -> Tuple[csr_matrix, pd.DataFrame]:
         """
         Transforms text data to vectorized
-        :param csv_path: path to DataFrame with ";"-separated columns "filename" and "tags",
+        :param data: DataFrame with ";"-separated columns "filename" and "tags",
         where each line of "filename" contains filenames of text files in "texts" directory
         and each line of "tags" contains comma-separated tags.
         :return: (x, Y), where x is a sparse matrix of vectorized texts and Y is dataframe
@@ -61,6 +61,9 @@ class DataManager:
         x = self.__text_preprocessor.transform(data, self.__root)
         y = self.__tag_preprocessor.transform(data)
         return x, y
+    
+    def transform_texts(self, texts: List[str]) -> csr_matrix:
+        return self.__text_preprocessor.vectorizer.transform(texts)
 
     @staticmethod
     def load_x(path: str) -> csr_matrix:
